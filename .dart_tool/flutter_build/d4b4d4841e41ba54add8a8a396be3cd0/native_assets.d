@@ -1,0 +1,1 @@
+ /Users/bellbird/personal-app/.dart_tool/flutter_build/d4b4d4841e41ba54add8a8a396be3cd0/native_assets.yaml: 
