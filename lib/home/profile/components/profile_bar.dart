@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileBar extends StatefulWidget {
   const ProfileBar({super.key});
@@ -9,6 +10,31 @@ class ProfileBar extends StatefulWidget {
 }
 
 class _ProfileBarState extends State<ProfileBar> {
+  String storedWeight = '-';
+  final TextEditingController _weightController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWeight();
+  }
+
+  Future<void> _loadWeight() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? weight = prefs.getString('weight');
+    if (weight != null) {
+      setState(() {
+        storedWeight = weight;
+        _weightController.text = weight;
+      });
+    }
+  }
+
+  Future<void> _saveWeight(String weight) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('weight', weight);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -47,7 +73,9 @@ class _ProfileBarState extends State<ProfileBar> {
               Align(
                 alignment: Alignment.centerRight,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    openEditProfileModal(context);
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: const BoxDecoration(
@@ -95,7 +123,7 @@ class _ProfileBarState extends State<ProfileBar> {
                   color: Color.fromRGBO(189, 189, 189, 1),
                   thickness: 1,
                 ),
-                physique('Weight', '73.8')
+                physique('Weight', storedWeight)
               ],
             ),
           ),
@@ -112,18 +140,117 @@ class _ProfileBarState extends State<ProfileBar> {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Color.fromRGBO(112, 112, 112, 1),
                 fontSize: 16,
                 fontWeight: FontWeight.bold),
           ),
           Text(value,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Color.fromRGBO(112, 112, 112, 1),
                   fontSize: 16,
                   fontWeight: FontWeight.w500))
         ],
       ),
+    );
+  }
+
+  void openEditProfileModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 0,
+          actionsAlignment: MainAxisAlignment.center,
+          title: const Text('Edit your profile'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Weight',
+                  hintText: 'Insert your weight',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: Color.fromRGBO(132, 182, 244, 1),
+                      width: 2.0,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                  ),
+                ),
+                controller: _weightController,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            SizedBox(
+              width: 110,
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.resolveWith(
+                      (states) => const EdgeInsets.all(0)),
+                  backgroundColor: MaterialStateProperty.resolveWith(
+                      (states) => const Color.fromRGBO(170, 170, 170, 1)),
+                  shape: MaterialStateProperty.resolveWith(
+                    (states) => const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            SizedBox(
+              width: 110,
+              child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                        (states) => const Color.fromRGBO(132, 182, 244, 1)),
+                    shape: MaterialStateProperty.resolveWith(
+                      (states) => const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                    )),
+                child: const Text(
+                  'Guardar',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                onPressed: () {
+                  String currentWeight = _weightController.text;
+                  _saveWeight(currentWeight);
+                  setState(() {
+                    storedWeight = currentWeight;
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
