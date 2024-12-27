@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:personal_app/services/api_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileBar extends StatefulWidget {
@@ -73,8 +74,9 @@ class _ProfileBarState extends State<ProfileBar> {
               Align(
                 alignment: Alignment.centerRight,
                 child: InkWell(
-                  onTap: () {
-                    openEditProfileModal(context);
+                  onTap: () async {
+                    ApiProvider apiProvider = ApiProvider();
+                    var lista = await apiProvider.getExercises();
                   },
                   child: Container(
                     padding: const EdgeInsets.all(12),

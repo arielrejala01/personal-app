@@ -13,7 +13,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Widget> pages = [
-    Text('Home'),
+    const Text('Home'),
     const Gym(),
     const Liquid(),
     const Profile()
